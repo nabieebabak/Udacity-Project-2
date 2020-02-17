@@ -1,6 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
+import { checkServerIdentity } from 'tls';
 
 (async () => {
 
@@ -12,6 +13,14 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
+
+    // console.log("babak1!!!!");
+    // var files:string[] = [];
+    // files.push(filteredpath);
+    // deleteLocalFiles(files);
+    // console.log('YESSSSSSS');
+  
+
 
   // @TODO1 IMPLEMENT A RESTFUL ENDPOINT
   // GET /filteredimage?image_url={{URL}}
@@ -28,6 +37,34 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
 
   /**************************************************************************** */
+
+  var files:string[] = [];
+  var filteredpath = '';
+
+  app.use(function (req, res, next) {
+
+    console.log('Time:', Date.now())
+    deleteLocalFiles(files);
+    next()
+  });
+
+  app.get("/filteredimage", async (req, res, next) => {
+    //validating query
+    if(!req.query['image_url']){
+      
+      res.status(422).send("You Must Enter an image Url");
+    }
+    else{
+        const image_url = req.query['image_url'];
+        filteredpath = await filterImageFromURL(image_url);
+        console.log(filteredpath);
+        await res.status(200).sendFile(filteredpath);
+        console.log("babak1!!!!");
+        files.push(filteredpath);
+        console.log(files);
+        // deleteLocalFiles(files);
+    }
+  });
 
   //! END @TODO1
   

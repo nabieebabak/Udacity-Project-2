@@ -46,14 +46,16 @@ import { checkServerIdentity } from 'tls';
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
 
   /**************************************************************************** */
-  app.get("/filteredimage", (req, res) => {
+  app.get("/filteredimage", async (req, res) => {
     //validating query
     if(!req.query['image_url']){
       
-      res.send("You Must Enter a image Url").status(422);
+      res.status(422).send("You Must Enter an image Url");
     }
     else{
-      res.send(req.query).status(200);
+      const image_url = req.query['image_url'];
+      const filteredpath = await filterImageFromURL(image_url);
+      res.status(200).sendFile(filteredpath);
     }
 
   });

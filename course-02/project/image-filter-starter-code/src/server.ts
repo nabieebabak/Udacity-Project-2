@@ -1,6 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
+import { checkServerIdentity } from 'tls';
 
 (async () => {
 
@@ -12,6 +13,23 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
+
+  function validateQuery(image_url) {
+
+    return (req, res, next) => {
+            if(!req.query[image_url]) { // Field isn't present, end request
+                return res
+                    .status(400)
+                    .send(`${image_url} is missing`);
+    }
+
+        next(); // All fields are present, proceed
+
+    };
+
+}
+
+
 
   // @TODO1 IMPLEMENT A RESTFUL ENDPOINT
   // GET /filteredimage?image_url={{URL}}
@@ -28,6 +46,17 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
 
   /**************************************************************************** */
+  app.get("/filteredimage", (req, res) => {
+    //validating query
+    if(!req.query['image_url']){
+      
+      res.send("You Must Enter a image Url").status(422);
+    }
+    else{
+      res.send(req.query).status(200);
+    }
+
+  });
 
   //! END @TODO1
   
